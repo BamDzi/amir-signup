@@ -34,6 +34,9 @@
 
         <div th:if="${confirmationMessage}" class="alert alert-success"
           role="alert" th:text="${confirmationMessage}"></div>
+          
+          <div th:if="${alreadyRegisteredMessage}" class="alert alert-success"
+          role="alert" th:text="${alreadyRegisteredMessage}"></div>
 
         <div th:if="${errorMessage}"
           class="alert alert-danger" role="alert"

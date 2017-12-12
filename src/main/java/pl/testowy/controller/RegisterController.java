@@ -17,7 +17,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -50,32 +52,48 @@ public class RegisterController extends WebMvcConfigurerAdapter {
       this.userService = userService;
       this.emailService = emailService;
     }
+    /*
+    @ModelAttribute("alreadyRegisteredMessage")
+    public String alreadyRegisteredMessage() {
+    	return "Oops!  To jest already a user registered with the email provided.";
+    }
+    
+    
+    @ModelAttribute("confirmationMessag")
+    public String confirmationMessage() {
+    	return "A confirmation e-mail has been sent to " + "...";
+    }*/
 
 	// Return registration form template
-	@RequestMapping(value="/register", method = RequestMethod.GET)
-	public ModelAndView showRegistrationPage(ModelAndView modelAndView, User user){
-		modelAndView.addObject("user", user);
-		modelAndView.setViewName("register");
-		return modelAndView;
+	@GetMapping("register")
+	public String showRegistrationPage(@ModelAttribute User user) {	
+		return "register";
+//	public ModelAndView showRegistrationPage(ModelAndView modelAndView, User user){
+//		modelAndView.addObject("user", user);
+//		modelAndView.setViewName("register");
+//		return modelAndView;
 	}
 	
 	// Process form input data
-	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	public ModelAndView processRegistrationForm(ModelAndView modelAndView, @Valid User user, BindingResult bindingResult, HttpServletRequest request) {
-				
+	@PostMapping("/register")
+//	public ModelAndView processRegistrationForm(ModelAndView modelAndView, @Valid User user, BindingResult bindingResult, HttpServletRequest request) {
+	public String processRegistrationForm(@Valid User user, BindingResult bindingResult, HttpServletRequest request, Model model) {			
 		// Lookup user in database by e-mail
 		User userExists = userService.findByEmail(user.getEmail());
 		
 		System.out.println(userExists);
 		
 		if (userExists != null) {
-			modelAndView.addObject("alreadyRegisteredMessage", "Oops!  There is already a user registered with the email provided.");
-			modelAndView.setViewName("register");
+//			modelAndView.addObject("alreadyRegisteredMessage", "Oops!  There is already a user registered with the email provided.");
+//			modelAndView.setViewName("register");
+			model.addAttribute("alreadyRegisteredMessage", "Oops!  There is already a user registered with the email provided.");
 			bindingResult.reject("email");
+			return "register";
 		}
 			
 		if (bindingResult.hasErrors()) { 
-			modelAndView.setViewName("register");		
+//			modelAndView.setViewName("register");		
+			return "register";
 		} else { // new user so we create user and send confirmation e-mail
 					
 			// Disable user until they click on confirmation link in email
@@ -97,11 +115,13 @@ public class RegisterController extends WebMvcConfigurerAdapter {
 			
 			emailService.sendEmail(registrationEmail);
 			
-			modelAndView.addObject("confirmationMessage", "A confirmation e-mail has been sent to " + user.getEmail());
-			modelAndView.setViewName("register");
+//			modelAndView.addObject("confirmationMessage", "A confirmation e-mail has been sent to " + user.getEmail());
+//			modelAndView.setViewName("register");
+			model.addAttribute("confirmationMessage", "A confirmation e-mail has been sent to " + user.getEmail());
 		}
 			
-		return modelAndView;
+//		return modelAndView;
+		return "register";
 	}
 	
 	// Process confirmation link
