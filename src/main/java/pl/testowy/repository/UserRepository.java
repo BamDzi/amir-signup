@@ -9,4 +9,5 @@ import pl.testowy.model.User;
 public interface UserRepository extends CrudRepository<User, Long> {
 	User findByEmail(String email);
     User findByConfirmationToken(String confirmationToken);
+    User findById(Long id);
 }

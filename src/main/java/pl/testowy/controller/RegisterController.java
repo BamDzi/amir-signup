@@ -68,15 +68,10 @@ public class RegisterController extends WebMvcConfigurerAdapter {
 	@GetMapping("register")
 	public String showRegistrationPage(@ModelAttribute User user) {	
 		return "register";
-//	public ModelAndView showRegistrationPage(ModelAndView modelAndView, User user){
-//		modelAndView.addObject("user", user);
-//		modelAndView.setViewName("register");
-//		return modelAndView;
 	}
 	
 	// Process form input data
 	@PostMapping("/register")
-//	public ModelAndView processRegistrationForm(ModelAndView modelAndView, @Valid User user, BindingResult bindingResult, HttpServletRequest request) {
 	public String processRegistrationForm(@Valid User user, BindingResult bindingResult, HttpServletRequest request, Model model) {			
 		// Lookup user in database by e-mail
 		User userExists = userService.findByEmail(user.getEmail());
@@ -84,18 +79,15 @@ public class RegisterController extends WebMvcConfigurerAdapter {
 		System.out.println(userExists);
 		
 		if (userExists != null) {
-//			modelAndView.addObject("alreadyRegisteredMessage", "Oops!  There is already a user registered with the email provided.");
-//			modelAndView.setViewName("register");
 			model.addAttribute("alreadyRegisteredMessage", "Oops!  There is already a user registered with the email provided.");
 			bindingResult.reject("email");
 			return "register";
 		}
 			
 		if (bindingResult.hasErrors()) { 
-//			modelAndView.setViewName("register");		
 			return "register";
-		} else { // new user so we create user and send confirmation e-mail
-					
+		}
+		
 			// Disable user until they click on confirmation link in email
 		    user.setEnabled(false);
 		      
@@ -115,30 +107,25 @@ public class RegisterController extends WebMvcConfigurerAdapter {
 			
 			emailService.sendEmail(registrationEmail);
 			
-//			modelAndView.addObject("confirmationMessage", "A confirmation e-mail has been sent to " + user.getEmail());
-//			modelAndView.setViewName("register");
 			model.addAttribute("confirmationMessage", "A confirmation e-mail has been sent to " + user.getEmail());
-		}
 			
-//		return modelAndView;
 		return "register";
 	}
 	
-	// Process confirmation link
-		@GetMapping("/confirm")
-		public ModelAndView showConfirmationPage(ModelAndView modelAndView, @RequestParam("token") String token) {
-				
-			User user = userService.findByConfirmationToken(token);
-				
-			if (user == null) { // No token found in DB
-				modelAndView.addObject("invalidToken", "Oops!  This is an invalid confirmation link.");
-			} else { // Token found
-				modelAndView.addObject("confirmationToken", user.getConfirmationToken());
-			}
-				
-			modelAndView.setViewName("confirm");
-			return modelAndView;		
+	@GetMapping("confirm")
+	public String showConfirmationPage(User user, Model model, @RequestParam String token) {
+			
+		user = userService.findByConfirmationToken(token);
+		
+		if (user == null) { // No token found in DB
+			return "home";
 		}
+
+		model.addAttribute("confirmationToken", user.getConfirmationToken());
+		
+			
+		return "confirm";		
+	}
 	
 	// Process confirmation link
 	/*@PostMapping("/confirm")
