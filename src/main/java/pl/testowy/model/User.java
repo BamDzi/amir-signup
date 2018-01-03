@@ -21,7 +21,7 @@ public class User {
 	private Long id;
 	
 	@Column(name = "email", nullable = false, unique = true)
-	@Email(message = "Please provide a valid e-mail")
+	@Email(message = "*Proszę wprowadzić prawidłowo adres e-mail")
 	@NotEmpty(message = "Please provide an e-mail")
 	private String email;
 	
